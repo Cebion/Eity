@@ -4,18 +4,20 @@ require 'globals'
 require 'colors'
 require 'lib/simpleScale'
 
-local discordRPC = require 'lib/discordRPC'
 local appId = require 'applicationId'
 
 local joysticks = love.joystick.getJoysticks()
 joystick = joysticks[1]
 
+love.mouse.setVisible(false)
+
 function love.load()
+  -- Load your cursor image
+  cursorImage = love.graphics.newImage("left_ptr.png")
   gameManager:load()
   stateManager:load()
   love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
   simpleScale.setWindow(gw, gh, resolutionList[saveManager.settings.resolutionIndex][1], resolutionList[saveManager.settings.resolutionIndex][2])
-  discordRPC.initialize(appId, true)
   now = os.time(os.date("*t"))
   detailsNow = "In Mainmenu"
   stateNow = ""
@@ -42,13 +44,14 @@ function discordApplyPresence()
   return presence
 end
 
-function love.gamepadpressed(joystick, button)
-  stateManager:gamepadpressed(joystick, button)
-end
+--function love.gamepadpressed(joystick, button)
+--  stateManager:gamepadpressed(joystick, button)
+--end
 
 function love.update(dt)
   collectgarbage()
-  mx = love.mouse.getX() / simpleScale.getScale()
+  local xOffset = (love.graphics.getWidth() - simpleScale.getScale() * gw) / 2
+  mx = (love.mouse.getX() - xOffset) / simpleScale.getScale()
   my = love.mouse.getY() / simpleScale.getScale()
   scoreManager:update(dt)
   gameManager:update(dt)
@@ -59,16 +62,12 @@ function love.update(dt)
   else
     love.window.setVSync(0)
   end
-
-  if nextPresenceUpdate < love.timer.getTime() then
-      discordRPC.updatePresence(discordApplyPresence())
-      nextPresenceUpdate = love.timer.getTime() + 2.0
-  end
-  discordRPC.runCallbacks()
-
-
 end
 
+function drawCursor()
+    local mouseX, mouseY = love.mouse.getPosition()
+    love.graphics.draw(cursorImage, mouseX, mouseY)
+end
 
 function love.draw()
 	simpleScale.set()
@@ -79,10 +78,10 @@ function love.draw()
       love.graphics.printf("FPS " .. love.timer.getFPS(), 0, gh - 12, gw, "right")
     end
 	simpleScale.unSet()
+	drawCursor()
 end
 
 function love.quit()
-  discordRPC.shutdown()
 end
 
 function love.mousepressed(x, y, button)

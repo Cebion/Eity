@@ -1,5 +1,5 @@
-gw = 1920
-gh = 1080
+gw = 1280
+gh = 960
 
 defaultFont = love.graphics.getFont()
 
@@ -10,7 +10,7 @@ resolutionList = {
                   {1366, 768}, 
                   {1280, 720}, 
                   {1024, 576}, 
-                  {800, 450}}
+                  {640, 480}}
 
 
 
